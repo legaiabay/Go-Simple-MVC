@@ -1,9 +1,12 @@
+//remote : https://github.com/legaiabay/go-sandbox.git
+
 package main
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 )
 
 var d, e, f int = 4, 5, 6
@@ -73,6 +76,18 @@ type testingJeson struct {
 	Keterangan string //`json:"keterangan"`
 }
 
+func startServer(port string) {
+	// Kill server : ctrl+c
+	// source ~/.profile
+	// sudo netstat -lpn |grep :8080
+	// sudo kill -9 PID
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string("hello"))
+	})
+
+	log.Fatal(http.ListenAndServe(port, nil))
+}
+
 func main() {
 
 	// Testing defer (diexecute di akhir)
@@ -111,10 +126,10 @@ func main() {
 	fmt.Println(newMap)
 
 	// Testing JSON
-	//response, _ := json.MarshalIndent(newMapArray, "", "  ") // One line
+	//response, _ := json.Marshal(newMapArray, "", "  ") // One line
 	//response, _ := json.MarshalIndent(newMapArray, "", "  ") // Pretty JSON
 	aaa := testingJeson{
-		Nama:       "Abay",
+		Nama:       "baru lagi",
 		Nilai:      200,
 		Keterangan: "Mantappp",
 	}
@@ -126,4 +141,8 @@ func main() {
 	}
 
 	fmt.Println(string(response))
+
+	// Testing webserver
+	// note : build dulu sebelum start
+	startServer(":8787")
 }
