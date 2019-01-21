@@ -3,10 +3,8 @@ package controllers
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"gotest.com/go-sandbox/models"
-	"gotest.com/go-sandbox/request"
 	"gotest.com/go-sandbox/structs"
 
 	"github.com/kataras/iris"
@@ -15,7 +13,7 @@ import (
 // CreateMahasiswa -> Buat data mahasiswa baru
 func CreateMahasiswa(c iris.Context) {
 	response := structs.Response{}
-	var params request.Mahasiswa
+	var params structs.Mahasiswa
 
 	if err := c.ReadJSON(&params); err == nil {
 		nama := params.Nama
@@ -56,18 +54,53 @@ func ReadMahasiswa(c iris.Context) {
 
 //UpdateMahasiswa -> Update mahasiswa by ID
 func UpdateMahasiswa(c iris.Context) {
-	id := c.Params().GetIntDefault("id", 0)
+	response := structs.Response{}
+	var params structs.Mahasiswa
 
-	c.JSON(iris.Map{
-		"message": "update : " + strconv.Itoa(id),
-	})
+	if err := c.ReadJSON(&params); err == nil {
+		nama := params.Nama
+		nim := params.NIM
+
+		if update := models.MahasiswaUpdateNama(nim, nama); update {
+			response.Status = "Ok"
+			response.Data = nama
+			response.Message = "Update success!"
+		} else {
+			response.Status = "Error"
+			response.Data = "nil"
+			response.Message = "Update error!"
+		}
+
+	} else {
+		fmt.Println("error")
+		log.Print(err)
+	}
+
+	c.JSON(response)
 }
 
 //DeleteMahasiswa -> Hapus mahasiswa by ID
 func DeleteMahasiswa(c iris.Context) {
-	id := c.Params().GetIntDefault("id", 0)
+	response := structs.Response{}
+	var params structs.Mahasiswa
 
-	c.JSON(iris.Map{
-		"message": "delete : " + strconv.Itoa(id),
-	})
+	if err := c.ReadJSON(&params); err == nil {
+		nim := params.NIM
+
+		if delete := models.MahasiswaDelete(nim); delete {
+			response.Status = "Ok"
+			response.Data = nim
+			response.Message = "Delete success!"
+		} else {
+			response.Status = "Error"
+			response.Data = "nil"
+			response.Message = "Delete error!"
+		}
+
+	} else {
+		fmt.Println("error")
+		log.Print(err)
+	}
+
+	c.JSON(response)
 }
