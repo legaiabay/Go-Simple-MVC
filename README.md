@@ -1,2 +1,2 @@
 # go-sandbox
-buat testing
+MVC with Go
