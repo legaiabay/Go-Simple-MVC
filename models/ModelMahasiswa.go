@@ -52,10 +52,38 @@ func MahasiswaCreate(nama string, kelas string, nim int) bool {
 	return true
 }
 
-func MahasiswaUpdateNama(nama string) {
+func MahasiswaUpdateNama(nim int, nama string) bool {
+	db := config.DBConnect()
+	defer db.Close()
 
+	data, err := db.Query("UPDATE mahasiswa SET nama = '" + nama + "' WHERE nim = '" + strconv.Itoa(nim) + "'")
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+
+	if data == nil {
+		log.Print("data kosong")
+		return false
+	}
+
+	return true
 }
 
-func MahasiswaDelete(nim int) {
+func MahasiswaDelete(nim int) bool {
+	db := config.DBConnect()
+	defer db.Close()
 
+	data, err := db.Query("DELETE FROM mahasiswa WHERE nim = '" + strconv.Itoa(nim) + "'")
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+
+	if data == nil {
+		log.Print("data kosong")
+		return false
+	}
+
+	return true
 }

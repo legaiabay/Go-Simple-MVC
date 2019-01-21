@@ -10,5 +10,7 @@ func DefineRoutes(app *iris.Application) {
 	{
 		party.Get("/mahasiswa", controllers.ReadMahasiswa)
 		party.Post("/mahasiswa", controllers.CreateMahasiswa)
+		party.Put("/mahasiswa", controllers.UpdateMahasiswa)
+		party.Delete("/mahasiswa", controllers.DeleteMahasiswa)
 	}
 }
