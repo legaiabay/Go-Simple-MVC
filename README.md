@@ -1,7 +1,7 @@
-# go-sandbox
-MVC with Go
+# Go Simple API MVC
+API MVC with Go
 
 Dependencies :
 - https://github.com/kataras/iris (Web server)
-- https://github.com/go-sql-driver/mysql
+- https://github.com/jinzhu/gorm (ORM)
 
