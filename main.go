@@ -4,10 +4,13 @@ package main
 import (
 	"strconv"
 
+	"gotest.com/go-sandbox/config"
+
 	"github.com/kataras/iris"
 )
 
 func startNewIrisServer(port int) {
+	config.DBConnect()
 	app := iris.Default()
 	DefineRoutes(app)
 	app.Run(iris.Addr(":" + strconv.Itoa(port)))

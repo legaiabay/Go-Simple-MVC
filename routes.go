@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/kataras/iris"
-	"gotest.com/go-sandbox/controllers"
+	"gotest.com/go-sandbox/controllers/mahasiswa"
 )
 
 func DefineRoutes(app *iris.Application) {
 	party := app.Party("/api")
 	{
-		party.Get("/mahasiswa", controllers.ReadMahasiswa)
-		party.Post("/mahasiswa", controllers.CreateMahasiswa)
-		party.Put("/mahasiswa", controllers.UpdateMahasiswa)
-		party.Delete("/mahasiswa", controllers.DeleteMahasiswa)
+		party.Get("/mahasiswa", mahasiswa.ReadMahasiswa)
+		party.Post("/mahasiswa", mahasiswa.CreateMahasiswa)
+		party.Put("/mahasiswa", mahasiswa.UpdateMahasiswa)
+		party.Delete("/mahasiswa", mahasiswa.DeleteMahasiswa)
 	}
 }
