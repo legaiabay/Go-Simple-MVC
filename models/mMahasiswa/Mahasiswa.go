@@ -1,6 +1,7 @@
 package mMahasiswa
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -14,40 +15,25 @@ func MahasiswaAll() []structs.Mahasiswa {
 	var mahasiswa structs.Mahasiswa
 	var mahasiswaArray []structs.Mahasiswa
 
-	/*
-		db := config.DBConnectLama()
-		defer db.Close()
-
-		data, err := db.Query("SELECT * FROM mahasiswa")
-		if err != nil {
-			log.Print(err)
-		}
-
-		for data.Next() {
-			if err := data.Scan(&mahasiswa.ID, &mahasiswa.Nama, &mahasiswa.Kelas, &mahasiswa.NIM); err != nil {
-				log.Fatal(err.Error())
-
-			} else {
-				mahasiswaArray = append(mahasiswaArray, mahasiswa)
-			}
-		}
-
-		return mahasiswaArray
-	*/
-
-	rows, err := config.DG.Table("mahasiswa").Select("id, nama, kelas, nim").Rows()
+	rows, err := config.DG.Model(&mahasiswa).Select("*").Rows()
 	defer rows.Close()
-
 	if err != nil {
-		log.Print(err)
-		return nil
+		log.Println(err.Error())
 	}
 
 	for rows.Next() {
-		if err := rows.Scan(&mahasiswa.ID, &mahasiswa.Nama, &mahasiswa.Kelas, &mahasiswa.NIM); err != nil {
-			log.Fatal(err.Error())
-		} else {
+		if err := rows.Scan(
+			&mahasiswa.ID,
+			&mahasiswa.Nama,
+			&mahasiswa.Kelas,
+			&mahasiswa.NIM,
+			&mahasiswa.CreatedAt,
+			&mahasiswa.UpdatedAt,
+			&mahasiswa.DeletedAt,
+		); err == nil {
 			mahasiswaArray = append(mahasiswaArray, mahasiswa)
+		} else {
+			fmt.Println(err.Error())
 		}
 	}
 
@@ -55,31 +41,17 @@ func MahasiswaAll() []structs.Mahasiswa {
 }
 
 func MahasiswaCreate(nama string, kelas string, nim int) bool {
-	/*
-		db := config.DBConnectLama()
-		defer db.Close()
-
-		data, err := db.Query("INSERT INTO mahasiswa (nama, kelas, nim) VALUES ( '" + nama + "','" + kelas + "','" + strconv.Itoa(nim) + "')")
-		if err != nil {
-			log.Print(err)
-			return false
-		}
-
-		if data == nil {
-			log.Print("data kosong")
-			return false
-		}
-	*/
-
 	mahasiswa := structs.Mahasiswa{
 		Nama:  nama,
 		Kelas: kelas,
 		NIM:   nim,
 	}
 
-	data := config.DG.Table("mahasiswa").Create(&mahasiswa)
-	if data == nil {
-		log.Print("data kosong")
+	config.DG.AutoMigrate(&structs.Mahasiswa{})
+
+	data := config.DG.Create(&mahasiswa)
+	if data.Error != nil {
+		log.Print(data.Error)
 		return false
 	}
 
@@ -87,27 +59,13 @@ func MahasiswaCreate(nama string, kelas string, nim int) bool {
 }
 
 func MahasiswaUpdateNama(nim int, nama string) bool {
-	/*
-		db := config.DBConnectLama()
-		defer db.Close()
+	mahasiswa := structs.Mahasiswa{
+		Nama: nama,
+	}
 
-		data, err := db.Query("UPDATE mahasiswa SET nama = '" + nama + "' WHERE nim = '" + strconv.Itoa(nim) + "'")
-		if err != nil {
-			log.Print(err)
-			return false
-		}
-
-		if data == nil {
-			log.Print("data kosong")
-			return false
-		}
-	*/
-
-	mahasiswa := structs.Mahasiswa{Nama: nama}
-
-	data := config.DG.Table("mahasiswa").Where("nim = " + strconv.Itoa(nim)).Update(&mahasiswa)
-	if data == nil {
-		log.Print("data kosong")
+	data := config.DG.Model(&mahasiswa).Where("nim = " + strconv.Itoa(nim)).Update(&mahasiswa)
+	if data.Error != nil {
+		log.Print(data.Error)
 		return false
 	}
 
@@ -115,27 +73,11 @@ func MahasiswaUpdateNama(nim int, nama string) bool {
 }
 
 func MahasiswaDelete(nim int) bool {
-	/*
-		db := config.DBConnectLama()
-		defer db.Close()
+	var mahasiswa structs.Mahasiswa
 
-		data, err := db.Query("DELETE FROM mahasiswa WHERE nim = '" + strconv.Itoa(nim) + "'")
-		if err != nil {
-			log.Print(err)
-			return false
-		}
-
-		if data == nil {
-			log.Print("data kosong")
-			return false
-		}
-
-		return true
-	*/
-
-	data := config.DG.Table("mahasiswa").Where("nim = " + strconv.Itoa(nim)).Delete(structs.Mahasiswa{})
-	if data == nil {
-		log.Print("data kosong")
+	data := config.DG.Model(&mahasiswa).Where("nim = " + strconv.Itoa(nim)).Delete(&mahasiswa)
+	if data.Error != nil {
+		log.Print(data.Error)
 		return false
 	}
 
