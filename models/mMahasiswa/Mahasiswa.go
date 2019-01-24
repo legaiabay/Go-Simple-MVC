@@ -1,8 +1,6 @@
 package mMahasiswa
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 
 	"gotest.com/go-sandbox/structs"
@@ -11,18 +9,18 @@ import (
 )
 
 //MahasiswaAll -> Get all mahasiswa
-func MahasiswaAll() []structs.Mahasiswa {
+func MahasiswaAll() ([]structs.Mahasiswa, string) {
 	var mahasiswa structs.Mahasiswa
-	var mahasiswaArray []structs.Mahasiswa
+	var mahasiswas []structs.Mahasiswa
 
-	rows, err := config.DG.Model(&mahasiswa).Select("*").Rows()
-	defer rows.Close()
+	query, err := config.DB.Model(&mahasiswa).Rows()
+	defer query.Close()
 	if err != nil {
-		log.Println(err.Error())
+		return mahasiswas, err.Error()
 	}
 
-	for rows.Next() {
-		if err := rows.Scan(
+	for query.Next() {
+		if err := query.Scan(
 			&mahasiswa.ID,
 			&mahasiswa.Nama,
 			&mahasiswa.Kelas,
@@ -31,55 +29,70 @@ func MahasiswaAll() []structs.Mahasiswa {
 			&mahasiswa.UpdatedAt,
 			&mahasiswa.DeletedAt,
 		); err == nil {
-			mahasiswaArray = append(mahasiswaArray, mahasiswa)
+			mahasiswas = append(mahasiswas, mahasiswa)
 		} else {
-			fmt.Println(err.Error())
+			return mahasiswas, err.Error()
 		}
 	}
 
-	return mahasiswaArray
+	return mahasiswas, "success"
 }
 
-func MahasiswaCreate(nama string, kelas string, nim int) bool {
+//MahasiswaGetByNim -> Get mahasiswa by NIM
+func MahasiswaGetByNim(nim int) (structs.Mahasiswa, string) {
+	mahasiswa := structs.Mahasiswa{NIM: nim}
+
+	query := config.DB.Find(&mahasiswa, &mahasiswa).Row()
+
+	if data := query.Scan(
+		&mahasiswa.ID,
+		&mahasiswa.Nama,
+		&mahasiswa.Kelas,
+		&mahasiswa.NIM,
+		&mahasiswa.CreatedAt,
+		&mahasiswa.UpdatedAt,
+		&mahasiswa.DeletedAt,
+	); data != nil {
+		return mahasiswa, "Can't find mahasiswa with NIM " + strconv.Itoa(nim)
+	}
+
+	return mahasiswa, "success"
+}
+
+func MahasiswaCreate(nama string, kelas string, nim int) string {
 	mahasiswa := structs.Mahasiswa{
 		Nama:  nama,
 		Kelas: kelas,
 		NIM:   nim,
 	}
 
-	config.DG.AutoMigrate(&structs.Mahasiswa{})
-
-	data := config.DG.Create(&mahasiswa)
-	if data.Error != nil {
-		log.Print(data.Error)
-		return false
+	query := config.DB.Create(&mahasiswa)
+	if query.Error != nil {
+		return query.Error.Error()
 	}
 
-	return true
+	return "success"
 }
 
-func MahasiswaUpdateNama(nim int, nama string) bool {
-	mahasiswa := structs.Mahasiswa{
-		Nama: nama,
+func MahasiswaUpdateNama(nim int, nama string) string {
+	mahasiswa := structs.Mahasiswa{Nama: nama}
+	where := structs.Mahasiswa{NIM: nim}
+
+	query := config.DB.Model(&mahasiswa).Where(&where).Update(&mahasiswa)
+	if query.RowsAffected == 0 {
+		return "Can't find mahasiswa with NIM " + strconv.Itoa(nim)
 	}
 
-	data := config.DG.Model(&mahasiswa).Where("nim = " + strconv.Itoa(nim)).Update(&mahasiswa)
-	if data.Error != nil {
-		log.Print(data.Error)
-		return false
-	}
-
-	return true
+	return "success"
 }
 
-func MahasiswaDelete(nim int) bool {
-	var mahasiswa structs.Mahasiswa
+func MahasiswaDelete(nim int) string {
+	mahasiswa := structs.Mahasiswa{NIM: nim}
 
-	data := config.DG.Model(&mahasiswa).Where("nim = " + strconv.Itoa(nim)).Delete(&mahasiswa)
-	if data.Error != nil {
-		log.Print(data.Error)
-		return false
+	query := config.DB.Delete(&mahasiswa, &mahasiswa)
+	if query.RowsAffected == 0 {
+		return "Can't find mahasiswa with NIM " + strconv.Itoa(nim)
 	}
 
-	return true
+	return "success"
 }

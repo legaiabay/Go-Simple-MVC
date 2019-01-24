@@ -12,3 +12,7 @@ type Mahasiswa struct {
 	UpdatedAt *time.Time `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
 }
+
+func (Mahasiswa) TableName() string {
+	return "4sa_mahasiswa"
+}
