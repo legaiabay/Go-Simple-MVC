@@ -1,14 +1,51 @@
 package mahasiswa
 
 import (
-	"fmt"
-	"log"
-
 	"gotest.com/go-sandbox/models/mMahasiswa"
 	"gotest.com/go-sandbox/structs"
 
 	"github.com/kataras/iris"
 )
+
+//ReadMahasiswa -> Liat semua data mahasiswa
+func ReadMahasiswa(c iris.Context) {
+	var response structs.Response
+
+	if data, message := mMahasiswa.MahasiswaAll(); message == "success" {
+		response.Status = "ok"
+		response.Data = data
+		response.Message = message
+	} else {
+		response.Status = "error"
+		response.Data = nil
+		response.Message = message
+	}
+
+	c.JSON(response)
+}
+
+func ReadMahasiswaByNim(c iris.Context) {
+	response := structs.Response{}
+	var params structs.Mahasiswa
+
+	if err := c.ReadJSON(&params); err == nil {
+		if data, message := mMahasiswa.MahasiswaGetByNim(params.NIM); message == "success" {
+			response.Status = "ok"
+			response.Data = data
+			response.Message = message
+		} else {
+			response.Status = "error"
+			response.Data = nil
+			response.Message = message
+		}
+	} else {
+		response.Status = "error"
+		response.Data = nil
+		response.Message = "wrong or insufficient params"
+	}
+
+	c.JSON(response)
+}
 
 // CreateMahasiswa -> Buat data mahasiswa baru
 func CreateMahasiswa(c iris.Context) {
@@ -16,37 +53,19 @@ func CreateMahasiswa(c iris.Context) {
 	var params structs.Mahasiswa
 
 	if err := c.ReadJSON(&params); err == nil {
-		nama := params.Nama
-		kelas := params.Kelas
-		nim := params.NIM
-
-		fmt.Println("nama : " + nama)
-
-		if create := mMahasiswa.MahasiswaCreate(nama, kelas, nim); create {
-			response.Status = "Ok"
-			response.Data = nama
-			response.Message = "Create success!"
+		if create := mMahasiswa.MahasiswaCreate(params.Nama, params.Kelas, params.NIM); create == "success" {
+			response.Status = "ok"
+			response.Data = params
+			response.Message = create
 		} else {
-			response.Status = "Error"
-			response.Data = "nil"
-			response.Message = "Create error!"
+			response.Status = "error"
+			response.Data = nil
+			response.Message = create
 		}
-
 	} else {
-		fmt.Println("error")
-		log.Print(err)
-	}
-
-	c.JSON(response)
-}
-
-//ReadMahasiswa -> Liat semua data mahasiswa
-func ReadMahasiswa(c iris.Context) {
-
-	response := structs.Response{
-		Status:  "OK",
-		Data:    mMahasiswa.MahasiswaAll(),
-		Message: "Success",
+		response.Status = "error"
+		response.Data = nil
+		response.Message = "Wrong or insufficient params"
 	}
 
 	c.JSON(response)
@@ -58,22 +77,19 @@ func UpdateMahasiswa(c iris.Context) {
 	var params structs.Mahasiswa
 
 	if err := c.ReadJSON(&params); err == nil {
-		nama := params.Nama
-		nim := params.NIM
-
-		if update := mMahasiswa.MahasiswaUpdateNama(nim, nama); update {
-			response.Status = "Ok"
-			response.Data = nama
-			response.Message = "Update success!"
+		if update := mMahasiswa.MahasiswaUpdateNama(params.NIM, params.Nama); update == "success" {
+			response.Status = "ok"
+			response.Data = params.Nama
+			response.Message = update
 		} else {
-			response.Status = "Error"
-			response.Data = "nil"
-			response.Message = "Update error!"
+			response.Status = "error"
+			response.Data = nil
+			response.Message = update
 		}
-
 	} else {
-		fmt.Println("error")
-		log.Print(err)
+		response.Status = "error"
+		response.Data = nil
+		response.Message = "Wrong or insufficient params"
 	}
 
 	c.JSON(response)
@@ -85,21 +101,19 @@ func DeleteMahasiswa(c iris.Context) {
 	var params structs.Mahasiswa
 
 	if err := c.ReadJSON(&params); err == nil {
-		nim := params.NIM
-
-		if delete := mMahasiswa.MahasiswaDelete(nim); delete {
-			response.Status = "Ok"
-			response.Data = nim
-			response.Message = "Delete success!"
+		if delete := mMahasiswa.MahasiswaDelete(params.NIM); delete == "success" {
+			response.Status = "ok"
+			response.Data = params.NIM
+			response.Message = delete
 		} else {
-			response.Status = "Error"
-			response.Data = "nil"
-			response.Message = "Delete error!"
+			response.Status = "error"
+			response.Data = nil
+			response.Message = delete
 		}
-
 	} else {
-		fmt.Println("error")
-		log.Print(err)
+		response.Status = "error"
+		response.Data = nil
+		response.Message = "Wrong or insufficient params"
 	}
 
 	c.JSON(response)
