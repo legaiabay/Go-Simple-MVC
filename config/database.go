@@ -28,6 +28,7 @@ func DBConnect() {
 //DBMigration -> Migration
 func DBMigration() {
 	DB.AutoMigrate(
-		&structs.Mahasiswa{},
+		&structs.Todo{},
+		&structs.TodoGroup{},
 	)
 }
