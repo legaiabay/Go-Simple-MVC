@@ -13,7 +13,7 @@ func DefineRoutes(app *iris.Application) {
 		party.Get("/todo/id", todo.ReadTodoById)
 		party.Post("/todo/create", todo.CreateTodo)
 		party.Put("/todo/update", todo.UpdateTodo)
-		party.Delete("/todo/delte", todo.DeleteTodo)
+		party.Delete("/todo/delete", todo.DeleteTodo)
 
 		party.Get("/todo/group", todoGroup.ReadAllTodoGroup)
 		party.Get("/todo/group/id", todoGroup.ReadAllTodoByGroupId)
